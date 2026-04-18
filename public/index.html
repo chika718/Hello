@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>算数 発問提案ツール</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      color: #1a3a5c;
+      font-weight: 700;
+    }
+
+    header p {
+      margin-top: 0.4rem;
+      color: #5a7a9a;
+      font-size: 0.9rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 1.8rem;
+      width: 100%;
+      max-width: 760px;
+    }
+
+    .input-section {
+      display: flex;
+      gap: 0.75rem;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+
+    .input-section label {
+      display: block;
+      font-size: 0.85rem;
+      color: #4a6580;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      min-width: 0;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #d0dde8;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      color: #1a3a5c;
+    }
+
+    input[type="text"]:focus {
+      border-color: #3b82f6;
+    }
+
+    input[type="text"]::placeholder {
+      color: #a0b4c4;
+    }
+
+    button#generateBtn {
+      padding: 0.75rem 1.5rem;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+      white-space: nowrap;
+      align-self: flex-end;
+    }
+
+    button#generateBtn:hover:not(:disabled) {
+      background: #2563eb;
+    }
+
+    button#generateBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .output-section {
+      margin-top: 1.8rem;
+      display: none;
+    }
+
+    .output-section.visible {
+      display: block;
+    }
+
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .output-header span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4a6580;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .badge.streaming {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    .badge.done {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .result-box {
+      background: #f8fbff;
+      border: 1px solid #e2ecf6;
+      border-radius: 8px;
+      padding: 1.5rem 1.8rem;
+      line-height: 1.8;
+      color: #1a3a5c;
+      min-height: 80px;
+    }
+
+    .result-box h2 {
+      font-size: 1.05rem;
+      color: #1e40af;
+      margin: 1.2rem 0 0.5rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 2px solid #e0eafb;
+    }
+
+    .result-box h2:first-child { margin-top: 0; }
+
+    .result-box h3 {
+      font-size: 0.95rem;
+      color: #1a3a5c;
+      margin: 1rem 0 0.4rem;
+    }
+
+    .result-box p { margin: 0.4rem 0; }
+
+    .result-box blockquote {
+      border-left: 3px solid #93c5fd;
+      background: #eff6ff;
+      padding: 0.4rem 0.8rem;
+      margin: 0.5rem 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+      color: #1e40af;
+    }
+
+    .result-box ul, .result-box ol {
+      padding-left: 1.4rem;
+      margin: 0.4rem 0;
+    }
+
+    .result-box li { margin: 0.2rem 0; }
+
+    .result-box hr {
+      border: none;
+      border-top: 1px solid #e2ecf6;
+      margin: 1rem 0;
+    }
+
+    .result-box strong { color: #1e3a5f; }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: #3b82f6;
+      animation: blink 0.8s infinite;
+      vertical-align: text-bottom;
+      margin-left: 1px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .error-msg {
+      color: #dc2626;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📐 算数 発問提案ツール</h1>
+    <p>小学4年生の単元名を入力すると、対話を深める発問を提案します</p>
+  </header>
+
+  <div class="card">
+    <div class="input-section">
+      <div class="input-wrapper">
+        <label for="unitInput">単元名</label>
+        <input
+          type="text"
+          id="unitInput"
+          placeholder="例：折れ線グラフ、面積、角の大きさ"
+          autocomplete="off"
+        />
+      </div>
+      <button id="generateBtn" onclick="generate()">発問を提案する</button>
+    </div>
+
+    <div class="output-section" id="outputSection">
+      <div class="output-header">
+        <span id="outputTitle">生成結果</span>
+        <span class="badge" id="statusBadge">待機中</span>
+      </div>
+      <div class="result-box" id="resultBox"></div>
+    </div>
+  </div>
+
+  <footer>Powered by Claude (claude-opus-4-7)</footer>
+
+  <script>
+    marked.setOptions({ breaks: true });
+
+    let rawText = "";
+    let isStreaming = false;
+
+    const unitInput = document.getElementById("unitInput");
+    const generateBtn = document.getElementById("generateBtn");
+    const outputSection = document.getElementById("outputSection");
+    const outputTitle = document.getElementById("outputTitle");
+    const statusBadge = document.getElementById("statusBadge");
+    const resultBox = document.getElementById("resultBox");
+
+    unitInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !isStreaming) generate();
+    });
+
+    function setStatus(state) {
+      statusBadge.className = "badge";
+      if (state === "streaming") {
+        statusBadge.classList.add("streaming");
+        statusBadge.textContent = "⏳ 生成中…";
+      } else if (state === "done") {
+        statusBadge.classList.add("done");
+        statusBadge.textContent = "✅ 完了";
+      } else {
+        statusBadge.textContent = "待機中";
+      }
+    }
+
+    function renderMarkdown(text, showCursor) {
+      const html = marked.parse(text);
+      resultBox.innerHTML = html + (showCursor ? '<span class="cursor"></span>' : "");
+    }
+
+    async function generate() {
+      const unit = unitInput.value.trim();
+      if (!unit) {
+        unitInput.focus();
+        return;
+      }
+      if (isStreaming) return;
+
+      isStreaming = true;
+      rawText = "";
+      generateBtn.disabled = true;
+      outputSection.classList.add("visible");
+      outputTitle.textContent = `「${unit}」の発問提案`;
+      setStatus("streaming");
+      resultBox.innerHTML = '<span class="cursor"></span>';
+
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ unit }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "サーバーエラー");
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const payload = line.slice(6);
+            if (payload === "[DONE]") {
+              renderMarkdown(rawText, false);
+              setStatus("done");
+              break;
+            }
+            try {
+              const data = JSON.parse(payload);
+              if (data.error) throw new Error(data.error);
+              if (data.text) {
+                rawText += data.text;
+                renderMarkdown(rawText, true);
+              }
+            } catch (_) {}
+          }
+        }
+      } catch (err) {
+        resultBox.innerHTML = `<div class="error-msg">⚠️ エラー: ${err.message}</div>`;
+        setStatus("done");
+      } finally {
+        isStreaming = false;
+        generateBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

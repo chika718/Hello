@@ -1,0 +1,13 @@
+{
+  "name": "sansu-hatsumon-app",
+  "version": "1.0.0",
+  "description": "小学4年生算数 発問提案Webアプリ",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "express": "^4.18.2"
+  }
+}
