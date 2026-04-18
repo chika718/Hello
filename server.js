@@ -1,11 +1,11 @@
 import express from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
-const client = new Anthropic();
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.use(express.json());
 app.use(express.static(join(__dirname, "public")));
@@ -56,24 +56,19 @@ app.post("/api/generate", async (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   try {
-    const stream = client.messages.stream({
-      model: "claude-opus-4-7",
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `小学4年生の算数「${unit.trim()}」の単元について、対話を深める発問を提案してください。`,
-        },
-      ],
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      systemInstruction: SYSTEM_PROMPT,
     });
 
-    for await (const event of stream) {
-      if (
-        event.type === "content_block_delta" &&
-        event.delta.type === "text_delta"
-      ) {
-        res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+    const result = await model.generateContentStream(
+      `小学4年生の算数「${unit.trim()}」の単元について、対話を深める発問を提案してください。`
+    );
+
+    for await (const chunk of result.stream) {
+      const text = chunk.text();
+      if (text) {
+        res.write(`data: ${JSON.stringify({ text })}\n\n`);
       }
     }
 
