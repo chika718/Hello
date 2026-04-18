@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>算数 発問提案ツール</title>
+  <title>算数 発問提案ツール（小学4年生）</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,25 +15,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 3rem;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    header h1 {
-      font-size: 1.6rem;
-      color: #1a3a5c;
-      font-weight: 700;
-    }
-
-    header p {
-      margin-top: 0.4rem;
-      color: #5a7a9a;
-      font-size: 0.9rem;
-    }
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 { font-size: 1.6rem; color: #1a3a5c; font-weight: 700; }
+    header p { margin-top: 0.4rem; color: #5a7a9a; font-size: 0.9rem; }
 
     .card {
       background: #fff;
@@ -41,81 +28,41 @@
       box-shadow: 0 2px 16px rgba(0,0,0,0.08);
       padding: 1.8rem;
       width: 100%;
-      max-width: 760px;
+      max-width: 780px;
     }
 
-    .input-section {
-      display: flex;
-      gap: 0.75rem;
-      align-items: stretch;
-      flex-wrap: wrap;
-    }
-
-    .input-section label {
+    .card label {
       display: block;
       font-size: 0.85rem;
       color: #4a6580;
       font-weight: 600;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.6rem;
     }
 
-    .input-wrapper {
-      flex: 1;
-      min-width: 0;
+    .unit-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 0.75rem 1rem;
+    .unit-btn {
+      padding: 0.5rem 1.1rem;
       border: 2px solid #d0dde8;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s;
+      border-radius: 999px;
+      background: #fff;
       color: #1a3a5c;
-    }
-
-    input[type="text"]:focus {
-      border-color: #3b82f6;
-    }
-
-    input[type="text"]::placeholder {
-      color: #a0b4c4;
-    }
-
-    button#generateBtn {
-      padding: 0.75rem 1.5rem;
-      background: #3b82f6;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.92rem;
       font-family: inherit;
-      font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s, opacity 0.2s;
-      white-space: nowrap;
-      align-self: flex-end;
+      transition: all 0.15s;
+      font-weight: 500;
     }
 
-    button#generateBtn:hover:not(:disabled) {
-      background: #2563eb;
-    }
+    .unit-btn:hover { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
+    .unit-btn.active { border-color: #3b82f6; background: #3b82f6; color: #fff; }
 
-    button#generateBtn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .output-section {
-      margin-top: 1.8rem;
-      display: none;
-    }
-
-    .output-section.visible {
-      display: block;
-    }
+    .output-section { margin-top: 2rem; display: none; }
+    .output-section.visible { display: block; }
 
     .output-header {
       display: flex;
@@ -124,251 +71,471 @@
       margin-bottom: 0.75rem;
     }
 
-    .output-header span {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #4a6580;
-    }
+    .output-title { font-size: 0.95rem; font-weight: 700; color: #1a3a5c; }
 
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      background: #dbeafe;
-      color: #1d4ed8;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-    }
-
-    .badge.streaming {
-      background: #fef9c3;
-      color: #854d0e;
-    }
-
-    .badge.done {
       background: #dcfce7;
       color: #166534;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
     }
 
     .result-box {
       background: #f8fbff;
       border: 1px solid #e2ecf6;
       border-radius: 8px;
-      padding: 1.5rem 1.8rem;
-      line-height: 1.8;
+      padding: 1.6rem 1.8rem;
+      line-height: 1.9;
       color: #1a3a5c;
-      min-height: 80px;
     }
 
     .result-box h2 {
       font-size: 1.05rem;
       color: #1e40af;
-      margin: 1.2rem 0 0.5rem;
+      margin: 1.3rem 0 0.5rem;
       padding-bottom: 0.3rem;
-      border-bottom: 2px solid #e0eafb;
+      border-bottom: 2px solid #dbeafe;
     }
-
     .result-box h2:first-child { margin-top: 0; }
-
-    .result-box h3 {
-      font-size: 0.95rem;
-      color: #1a3a5c;
-      margin: 1rem 0 0.4rem;
-    }
-
-    .result-box p { margin: 0.4rem 0; }
-
+    .result-box h3 { font-size: 0.95rem; color: #1e3a5f; margin: 1rem 0 0.35rem; }
+    .result-box p { margin: 0.35rem 0; }
     .result-box blockquote {
       border-left: 3px solid #93c5fd;
       background: #eff6ff;
-      padding: 0.4rem 0.8rem;
+      padding: 0.4rem 0.9rem;
       margin: 0.5rem 0;
       border-radius: 0 6px 6px 0;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: #1e40af;
     }
-
-    .result-box ul, .result-box ol {
-      padding-left: 1.4rem;
-      margin: 0.4rem 0;
-    }
-
-    .result-box li { margin: 0.2rem 0; }
-
-    .result-box hr {
-      border: none;
-      border-top: 1px solid #e2ecf6;
-      margin: 1rem 0;
-    }
-
+    .result-box ul, .result-box ol { padding-left: 1.5rem; margin: 0.4rem 0; }
+    .result-box li { margin: 0.3rem 0; }
+    .result-box hr { border: none; border-top: 1px solid #e2ecf6; margin: 1rem 0; }
     .result-box strong { color: #1e3a5f; }
 
-    .cursor {
-      display: inline-block;
-      width: 2px;
-      height: 1em;
-      background: #3b82f6;
-      animation: blink 0.8s infinite;
-      vertical-align: text-bottom;
-      margin-left: 1px;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
-    }
-
-    .error-msg {
-      color: #dc2626;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-size: 0.9rem;
-    }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.8rem;
-      color: #94a3b8;
-      text-align: center;
-    }
+    footer { margin-top: 2rem; font-size: 0.8rem; color: #94a3b8; text-align: center; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>📐 算数 発問提案ツール</h1>
-    <p>小学4年生の単元名を入力すると、対話を深める発問を提案します</p>
-  </header>
 
-  <div class="card">
-    <div class="input-section">
-      <div class="input-wrapper">
-        <label for="unitInput">単元名</label>
-        <input
-          type="text"
-          id="unitInput"
-          placeholder="例：折れ線グラフ、面積、角の大きさ"
-          autocomplete="off"
-        />
-      </div>
-      <button id="generateBtn" onclick="generate()">発問を提案する</button>
-    </div>
+<header>
+  <h1>📐 算数 発問提案ツール</h1>
+  <p>小学4年生 ／ 単元を選ぶと対話を深める発問を表示します（APIなし・オフライン対応）</p>
+</header>
 
-    <div class="output-section" id="outputSection">
-      <div class="output-header">
-        <span id="outputTitle">生成結果</span>
-        <span class="badge" id="statusBadge">待機中</span>
-      </div>
-      <div class="result-box" id="resultBox"></div>
+<div class="card">
+  <label>単元を選んでください</label>
+  <div class="unit-grid" id="unitGrid"></div>
+
+  <div class="output-section" id="outputSection">
+    <div class="output-header">
+      <span class="output-title" id="outputTitle"></span>
+      <span class="badge">✅ 表示中</span>
     </div>
+    <div class="result-box" id="resultBox"></div>
   </div>
+</div>
 
-  <footer>Powered by Gemini (gemini-2.0-flash)</footer>
+<footer>APIなし・オフライン対応版 ／ 小学4年生 算数</footer>
 
-  <script>
-    marked.setOptions({ breaks: true });
+<script>
+  const UNITS = {
+    "折れ線グラフ": `
+## 🔍 本時の対話のポイント
 
-    let rawText = "";
-    let isStreaming = false;
+棒グラフと折れ線グラフの「違い」に着目させ、グラフが「変化」を表すツールであることを実感させる。「なぜ点を線でつなぐのか」を議論させることで、データの読み方が深まる。
 
-    const unitInput = document.getElementById("unitInput");
-    const generateBtn = document.getElementById("generateBtn");
-    const outputSection = document.getElementById("outputSection");
-    const outputTitle = document.getElementById("outputTitle");
-    const statusBadge = document.getElementById("statusBadge");
-    const resultBox = document.getElementById("resultBox");
+## 💬 対話を引き出す3つの発問
 
-    unitInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !isStreaming) generate();
-    });
+### 【導入】興味を惹きつける問い
 
-    function setStatus(state) {
-      statusBadge.className = "badge";
-      if (state === "streaming") {
-        statusBadge.classList.add("streaming");
-        statusBadge.textContent = "⏳ 生成中…";
-      } else if (state === "done") {
-        statusBadge.classList.add("done");
-        statusBadge.textContent = "✅ 完了";
-      } else {
-        statusBadge.textContent = "待機中";
-      }
-    }
+棒グラフと折れ線グラフ、見た目が違うね。**何が同じで、何が変わった？**
 
-    function renderMarkdown(text, showCursor) {
-      const html = marked.parse(text);
-      resultBox.innerHTML = html + (showCursor ? '<span class="cursor"></span>' : "");
-    }
+> アプローチ：比較・差異
 
-    async function generate() {
-      const unit = unitInput.value.trim();
-      if (!unit) {
-        unitInput.focus();
-        return;
-      }
-      if (isStreaming) return;
+### 【展開】思考を揺さぶる問い
 
-      isStreaming = true;
-      rawText = "";
-      generateBtn.disabled = true;
+グラフがぐっと急に上がっているこの部分——**どうして「急に変わった」と言えるの？何を根拠にしている？**
+
+> アプローチ：理由・根拠
+
+### 【終末】学びを広げる問い
+
+このグラフの続き、来月・来年はどうなると思う？**そう予想した理由は？**
+
+> アプローチ：予測・仮説
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「棒グラフと同じじゃないの？」**
+  → 折れ線グラフを棒グラフに変えたら、どんなことがわかりにくくなる？
+
+- **「線がつながっているのは当たり前」**
+  → 点と点の間（例：1月と2月の間）には本当に値がある？何を表しているんだろう？
+
+- **「上がっている＝よいこと」**
+  → 何のグラフかによって変わらない？気温が上がることは常によいこと？
+`,
+
+    "角の大きさ": `
+## 🔍 本時の対話のポイント
+
+「角の大きさ」が辺の長さではなく「開き具合」であることを、比較・測定を通じて実感させる。分度器の必要性を子どもたち自身に発見させる流れが大切。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+この2つの角、どっちが大きい？**目で見ただけで正確にわかる？**
+
+> アプローチ：比較・差異
+
+### 【展開】思考を揺さぶる問い
+
+辺が長い方の角が大きい——**本当にそう言える？確かめてみよう。**
+
+> アプローチ：理由・根拠
+
+### 【終末】学びを広げる問い
+
+もし分度器がなかったら、角の大きさをどうやって比べる？**他の方法はある？**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「辺が長いほうが角が大きい」**
+  → 辺の長さだけ変えて角の大きさは変えない図を描いてみよう。どうなる？
+
+- **「なんとなく大きく見える」**
+  → 「なんとなく」ではなく、誰が見ても同じ答えになる方法はないかな？
+
+- **「180度より大きい角はある？」**
+  → 時計の針を回すイメージで考えてみよう。一回転は何度？
+`,
+
+    "面積": `
+## 🔍 本時の対話のポイント
+
+「縦×横」の公式を丸暗記させるのではなく、「なぜかけ算なのか」を言語化させる。マス目による測定と公式をつなげる議論が深い学びにつながる。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+この2つの形、どっちが広い？**どうやって比べればいい？**
+
+> アプローチ：比較・差異
+
+### 【展開】思考を揺さぶる問い
+
+面積の公式は「縦×横」。**なぜたし算じゃなくてかけ算なの？**
+
+> アプローチ：理由・根拠
+
+### 【終末】学びを広げる問い
+
+正方形と長方形の面積の公式、どこが同じでどこが違う？**1つの式にまとめられる？**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「マス目を数えればいい」**
+  → マス目が数えられないほど大きい土地の面積はどうやって求める？
+
+- **「縦×横は覚えた」**
+  → なぜその式で面積が出るのか、1年生にもわかるように説明できる？
+
+- **「たし算でも答えが同じになることがある」**
+  → どんなときに縦＋横と縦×横が同じ値になる？それは偶然？
+`,
+
+    "小数": `
+## 🔍 本時の対話のポイント
+
+小数が「整数の世界の延長」であることを実感させる。「1より小さいものをどう表すか」という問いから出発し、位の仕組みと結びつける。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+1と2のちょうど真ん中はどう書けばいい？**整数で書けないとき、どうする？**
+
+> アプローチ：予測・仮説
+
+### 【展開】思考を揺さぶる問い
+
+0.1を10こ集めると1になる。**「10こで1つ上の位」というきまりと関係ある？**
+
+> アプローチ：理由・根拠
+
+### 【終末】学びを広げる問い
+
+小数がなかったら、身の回りで**どんな困ることがある？**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「0.9の次は0.10」**
+  → 0.10と1.0は同じもの？違うもの？どうして？
+
+- **「小数点の場所がわからなくなる」**
+  → 整数のときの「位」と小数の「位」はどんな関係がある？
+
+- **「1.0と1は違う」**
+  → 数直線に並べてみよう。1.0と1はどこにある？
+`,
+
+    "わり算の筆算": `
+## 🔍 本時の対話のポイント
+
+筆算の手順を「なぜ十の位から計算するのか」という問いで掘り下げる。機械的な手順の暗記ではなく、位の意味と結びつけた理解を目指す。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+84÷4の答え、暗算で予想してみよう。**どうやって見当をつけた？**
+
+> アプローチ：予測・仮説
+
+### 【展開】思考を揺さぶる問い
+
+筆算でまず十の位から計算するのはなぜ？**一の位からやったらどうなる？**
+
+> アプローチ：理由・根拠
+
+### 【終末】学びを広げる問い
+
+わり算とかけ算はどんな関係がある？**筆算の確かめ算に使えるかな？**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「手順通りにやれば解ける」**
+  → 手順の意味を友達に説明できる？「なぜその順番なのか」を言葉で表してみよう。
+
+- **「あまりが出るときわからなくなる」**
+  → あまりは何を表しているの？もとの数より大きくなることはある？
+
+- **「一の位から計算したら答えが違った」**
+  → なぜ違う答えになった？どこで位がずれた？
+`,
+
+    "垂直と平行": `
+## 🔍 本時の対話のポイント
+
+「垂直」「平行」の定義を覚えるだけでなく、「なぜその形が建物や道路に使われているのか」まで考えを広げる。2直線の関係を「交わるか交わらないか」で整理する議論が深まりやすい。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+この2本の直線、ずっと伸ばし続けたら**どうなると思う？**
+
+> アプローチ：予測・仮説
+
+### 【展開】思考を揺さぶる問い
+
+垂直と平行、どちらも「特別な2直線の関係」。**どこが似ていてどこが違う？**
+
+> アプローチ：比較・差異
+
+### 【終末】学びを広げる問い
+
+教室や校舎の中で垂直・平行を探してみよう。**なぜそこに使われているんだろう？**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「平行は交わらない直線のこと」**
+  → 斜めの2本の直線も平行になれる？どんな条件を満たせばいい？
+
+- **「垂直は直角に交わる」**
+  → 直角は何度？なぜ90度が特別なの？
+
+- **「平行な線はずっと同じ距離のはず」**
+  → 本当にそう言えるか確かめるには、どこを測ればいい？
+`,
+
+    "四角形の種類": `
+## 🔍 本時の対話のポイント
+
+正方形・長方形・ひし形・平行四辺形・台形の「包含関係」を議論させる。「正方形は長方形と言えるか」という問いが意見の分かれやすいポイント。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+正方形と長方形、**どこが同じでどこが違う？**
+
+> アプローチ：比較・差異
+
+### 【展開】思考を揺さぶる問い
+
+「正方形は長方形の仲間だ」と言える？それとも言えない？**理由を教えて。**
+
+> アプローチ：理由・根拠
+
+### 【終末】学びを広げる問い
+
+今日習った四角形を自分なりのグループに分けてみよう。**どんな分け方が考えられる？**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「正方形は正方形、長方形は長方形で別々」**
+  → 長方形の条件って何？正方形はその条件を満たしている？
+
+- **「ひし形と正方形は形が違う」**
+  → 形が違っても「仲間」になれることはある？仲間の基準は何？
+
+- **「全部四角形だから同じ仲間」**
+  → 同じ四角形の中でも、さらに細かく分けられるね。どんな特徴で分ける？
+`,
+
+    "計算のきまり": `
+## 🔍 本時の対話のポイント
+
+結合法則・交換法則・分配法則が「なぜ成り立つのか」を図や言葉で説明させる。公式を覚えるより「どんな場面で役立つか」を考えさせることが大切。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+25×4と4×25、答えは同じ？違う？**なぜそう言える？**
+
+> アプローチ：理由・根拠
+
+### 【展開】思考を揺さぶる問い
+
+(2＋3)×4と2×4＋3×4、なぜ同じ答えになるの？**図で説明できる？**
+
+> アプローチ：理由・根拠
+
+### 【終末】学びを広げる問い
+
+このきまりを使うと、どんな計算が楽になる？**自分で問題を作ってみよう。**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「なんとなく同じになる気がする」**
+  → 「なんとなく」ではなく、図や言葉で説明してみよう。どう表現できる？
+
+- **「引き算や割り算でも同じきまりがある？」**
+  → 試してみよう。(10−4)×2と10×2−4×2は同じになる？
+
+- **「暗算で使えそう」**
+  → 99×8はこのきまりを使うと、どう計算できる？
+`,
+
+    "整理のしかた": `
+## 🔍 本時の対話のポイント
+
+データの整理の仕方によって「見えてくるもの」が違うことに気づかせる。表や図の「どこに注目するか」で解釈が変わることを議論させる。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+このバラバラなデータ、**どう並べると一番わかりやすくなると思う？**
+
+> アプローチ：比較・差異
+
+### 【展開】思考を揺さぶる問い
+
+表に整理したら新しく気づいたことはある？**整理する前は見えていなかったことは？**
+
+> アプローチ：理由・根拠
+
+### 【終末】学びを広げる問い
+
+この整理の仕方、**他のことを調べるときにも使えそう？どんな場面で使える？**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「全部書けばわかる」**
+  → データが1000件あっても全部書ける？整理することの意味は何だろう？
+
+- **「表にしたらわかりやすい」**
+  → 何がわかりやすくなった？どこを見ればわかるの？
+
+- **「グラフのほうがいい」**
+  → 表とグラフ、それぞれどんなことを伝えるのが得意？
+`,
+
+    "分数": `
+## 🔍 本時の対話のポイント
+
+分数が「等分したうちのいくつか」という意味と、数直線上の位置を結びつけて理解させる。「同じ大きさの分数（等しい分数）」への気づきが議論のポイント。
+
+## 💬 対話を引き出す3つの発問
+
+### 【導入】興味を惹きつける問い
+
+1mのテープを3等分した1つ分は何m？**どうやって書く？**
+
+> アプローチ：予測・仮説
+
+### 【展開】思考を揺さぶる問い
+
+1/3と2/6は同じ大きさ？違う大きさ？**どうやって確かめる？**
+
+> アプローチ：比較・差異
+
+### 【終末】学びを広げる問い
+
+分数を数直線に並べると、整数とどんな関係がある？**1より大きい分数はある？**
+
+> アプローチ：一般化・拡張
+
+## 🧒 想定される児童の反応と切り返し
+
+- **「分母が大きいほど大きい分数」**
+  → 1/2と1/4、どっちが大きい？ピザを切るイメージで考えてみて。
+
+- **「1/3と2/6は見た目が違うから違う」**
+  → 折り紙を使って同じ大きさかどうか確かめてみよう。
+
+- **「3/3は1と同じ？」**
+  → なぜ同じと言えるの？分数の意味から説明してみよう。
+`
+  };
+
+  marked.setOptions({ breaks: true });
+
+  const unitGrid = document.getElementById("unitGrid");
+  const outputSection = document.getElementById("outputSection");
+  const outputTitle = document.getElementById("outputTitle");
+  const resultBox = document.getElementById("resultBox");
+  let activeBtn = null;
+
+  Object.keys(UNITS).forEach(name => {
+    const btn = document.createElement("button");
+    btn.className = "unit-btn";
+    btn.textContent = name;
+    btn.addEventListener("click", () => {
+      if (activeBtn) activeBtn.classList.remove("active");
+      btn.classList.add("active");
+      activeBtn = btn;
+      outputTitle.textContent = `「${name}」の発問提案`;
+      resultBox.innerHTML = marked.parse(UNITS[name]);
       outputSection.classList.add("visible");
-      outputTitle.textContent = `「${unit}」の発問提案`;
-      setStatus("streaming");
-      resultBox.innerHTML = '<span class="cursor"></span>';
-
-      try {
-        const res = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ unit }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || "サーバーエラー");
-        }
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop();
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const payload = line.slice(6);
-            if (payload === "[DONE]") {
-              renderMarkdown(rawText, false);
-              setStatus("done");
-              break;
-            }
-            try {
-              const data = JSON.parse(payload);
-              if (data.error) throw new Error(data.error);
-              if (data.text) {
-                rawText += data.text;
-                renderMarkdown(rawText, true);
-              }
-            } catch (_) {}
-          }
-        }
-      } catch (err) {
-        resultBox.innerHTML = `<div class="error-msg">⚠️ エラー: ${err.message}</div>`;
-        setStatus("done");
-      } finally {
-        isStreaming = false;
-        generateBtn.disabled = false;
-      }
-    }
-  </script>
+      outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    unitGrid.appendChild(btn);
+  });
+</script>
 </body>
 </html>
